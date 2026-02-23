@@ -8,5 +8,9 @@ import java.util.List;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
+
     List<Transaction> findByUserEmail(String email);
+
+    // For auto conversion
+    List<Transaction> findByUserEmailAndType(String email, String type);
 }

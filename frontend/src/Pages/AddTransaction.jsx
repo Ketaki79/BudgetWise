@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
-import { useTransactions } from '../Hooks/useTransactions';
-import axios from 'axios';
+import { useTransactions } from '../Context/TransactionsContext';
+import api from '../api';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const AddTransaction = () => {
@@ -66,18 +66,18 @@ const AddTransaction = () => {
     try {
       if (form.id) {
         // Update existing transaction
-        await axios.put(
-          `http://localhost:8080/api/transactions/${form.id}`,
-          { ...form, amount: Number(form.amount) },
-          { withCredentials: true }
-        );
+        await api.put(
+        `/api/transactions/${form.id}`,
+        { ...form, amount: Number(form.amount) }
+      );
+
       } else {
         // Create new transaction
-        await axios.post(
-          'http://localhost:8080/api/transactions',
-          { ...form, amount: Number(form.amount) },
-          { withCredentials: true }
-        );
+        await api.post(
+        '/api/transactions',
+        { ...form, amount: Number(form.amount) }
+      );
+
       }
 
       // Refresh transactions in dashboard

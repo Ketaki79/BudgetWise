@@ -1,5 +1,8 @@
 // App.jsx
+import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { TransactionsProvider } from './Context/TransactionsContext';
+
 import Home from './Pages/Home';
 import Login from './Pages/Login';
 import Register from './Pages/Register';
@@ -14,8 +17,8 @@ import AddTransaction from './Pages/AddTransaction';
 import ResetPassword from './Pages/ResetPassword';
 import ForgotPassword from './Pages/ForgotPassword';
 import VerifyLogin from './Pages/VerifyLogin';
+
 import Sidebar from './Components/Sidebar';
-import { TransactionsProvider } from './Hooks/useTransactions';
 import TransactionsTable from './Components/TransactionsTable';
 
 function App() {
@@ -39,6 +42,8 @@ function App() {
           <Route path="/verify-login" element={<VerifyLogin />} />
           <Route path="/sidebar" element={<Sidebar />} />
           <Route path="/transactions-table" element={<TransactionsTable />} />
+
+          {/* 404 Page */}
           <Route
             path="*"
             element={

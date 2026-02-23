@@ -22,6 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+<<<<<<< HEAD
 
-# Ignore Spring Boot application properties
-backend/src/main/resources/application.properties
+
+=======
+.env
+
+>>>>>>> 5bba135 (Your commit message)

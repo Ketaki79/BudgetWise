@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -7,7 +7,7 @@ const VerifyEmail = () => {
   const location = useLocation();
   const email = location.state?.email;
 
-  const [otp, setOtp] = useState(['', '', '', '', '', '']); // 6 digits
+  const [otp, setOtp] = useState(['', '', '', '', '', '']); // 6-digit OTP
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -15,19 +15,26 @@ const VerifyEmail = () => {
 
   const inputsRef = useRef([]);
 
+  // If email is not provided, redirect to register page
+  useEffect(() => {
+    if (!email) navigate('/register');
+  }, [email, navigate]);
+
   // ======================
   // Handle digit input
   // ======================
   const handleChange = (e, index) => {
     const val = e.target.value;
-    if (!/^\d?$/.test(val)) return; // only digits allowed
+    if (!/^\d?$/.test(val)) return; // Only digits
 
     const newOtp = [...otp];
     newOtp[index] = val;
     setOtp(newOtp);
 
-    // Auto focus next input
-    if (val && index < 5) inputsRef.current[index + 1].focus();
+    // Focus next input if a digit is entered
+    if (val && index < 5) {
+      inputsRef.current[index + 1].focus();
+    }
   };
 
   // ======================
@@ -43,7 +50,7 @@ const VerifyEmail = () => {
   };
 
   // ======================
-  // OTP Validation
+  // Validate OTP
   // ======================
   const isOtpValid = () => {
     if (otp.some(d => !d)) return 'Please enter all 6 digits';
@@ -51,7 +58,7 @@ const VerifyEmail = () => {
   };
 
   // ======================
-  // VERIFY OTP
+  // Verify OTP
   // ======================
   const handleVerify = async (e) => {
     e.preventDefault();
@@ -74,15 +81,20 @@ const VerifyEmail = () => {
       );
 
       if (response.status === 200) {
-        alert('OTP verified successfully');
-        navigate('/login');
+        setMessage('OTP verified successfully! Redirecting to login...');
+        setTimeout(() => navigate('/login'), 1500); // Redirect after 1.5s
       }
     } catch (err) {
-      // Show wrong OTP error directly below the boxes
-      if (err.response?.status === 400 || err.response?.status === 401) {
-        setError('Wrong OTP entered');
+      console.error(err);
+      if (err.response?.status === 400) {
+        setError(err.response.data || 'Invalid OTP');
+      } else if (err.response?.status === 404) {
+        setError('Email not found. Please register first.');
+        setTimeout(() => navigate('/register'), 1500);
+      } else if (err.response?.status === 500) {
+        setError('Server error. Please try again later.');
       } else {
-        setError(err.response?.data || 'Server error');
+        setError('Something went wrong. Please try again.');
       }
     } finally {
       setLoading(false);
@@ -90,7 +102,7 @@ const VerifyEmail = () => {
   };
 
   // ======================
-  // RESEND OTP
+  // Resend OTP
   // ======================
   const handleResendOtp = async () => {
     setError('');
@@ -106,11 +118,12 @@ const VerifyEmail = () => {
 
       if (response.status === 200) {
         setMessage('A new OTP has been sent to your email');
-        setOtp(['', '', '', '', '', '']); // clear input boxes
-        inputsRef.current[0].focus(); // focus first box
+        setOtp(['', '', '', '', '', '']); // clear inputs
+        inputsRef.current[0].focus();
       }
     } catch (err) {
-      setError(err.response?.data || 'Failed to resend OTP');
+      console.error(err);
+      setError(err.response?.data || 'Failed to resend OTP. Try again.');
     } finally {
       setResending(false);
     }
@@ -150,9 +163,7 @@ const VerifyEmail = () => {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-3.5 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition ${
-              loading ? 'opacity-70 cursor-not-allowed' : ''
-            }`}
+            className={`w-full py-3.5 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
           >
             {loading ? 'Verifying...' : 'Verify OTP'}
           </button>
