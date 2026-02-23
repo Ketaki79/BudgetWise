@@ -1,6 +1,6 @@
 // src/Components/TransactionsTable.jsx
 import React from 'react';
-import { useTransactions } from '../Hooks/useTransactions';
+import { useTransactions } from '../Context/TransactionsContext';
 
 const TransactionsTable = () => {
   const { transactions } = useTransactions();

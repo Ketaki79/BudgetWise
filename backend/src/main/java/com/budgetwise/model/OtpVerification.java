@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "otp_verification")
 public class OtpVerification {
 
     @Id
@@ -12,18 +11,31 @@ public class OtpVerification {
     private Long id;
 
     private String email;
+
     private String otp;
-    private boolean used = false;
+
+    private boolean used;
+
     private LocalDateTime expiryTime;
 
-    // getters & setters
+    // Getters & Setters
+    public Long getId() { return id; }
+
     public String getEmail() { return email; }
-    public String getOtp() { return otp; }
-    public boolean isUsed() { return used; }
-    public LocalDateTime getExpiryTime() { return expiryTime; }
 
     public void setEmail(String email) { this.email = email; }
+
+    public String getOtp() { return otp; }
+
     public void setOtp(String otp) { this.otp = otp; }
+
+    public boolean isUsed() { return used; }
+
     public void setUsed(boolean used) { this.used = used; }
-    public void setExpiryTime(LocalDateTime expiryTime) { this.expiryTime = expiryTime; }
+
+    public LocalDateTime getExpiryTime() { return expiryTime; }
+
+    public void setExpiryTime(LocalDateTime expiryTime) {
+        this.expiryTime = expiryTime;
+    }
 }

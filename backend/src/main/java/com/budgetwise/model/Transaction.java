@@ -13,7 +13,8 @@ public class Transaction {
 
     private LocalDate date;
 
-    private String type; // income or expense
+    // income, expense, reserved
+    private String type;
 
     private String title;
 
@@ -27,12 +28,15 @@ public class Transaction {
     @Column(name = "user_email")
     private String userEmail;
 
+    private boolean reserved = false;  // ✅ Reserved flag
+
     // Constructors
     public Transaction() {}
 
     public Transaction(LocalDate date, String type, String title,
                        String category, Double amount,
-                       String description, String userEmail) {
+                       String description, String userEmail,
+                       boolean reserved) {
         this.date = date;
         this.type = type;
         this.title = title;
@@ -40,9 +44,10 @@ public class Transaction {
         this.amount = amount;
         this.description = description;
         this.userEmail = userEmail;
+        this.reserved = reserved;
     }
 
-    // Getters and Setters
+    // Getters & Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -66,4 +71,7 @@ public class Transaction {
 
     public String getUserEmail() { return userEmail; }
     public void setUserEmail(String userEmail) { this.userEmail = userEmail; }
+
+    public boolean isReserved() { return reserved; }
+    public void setReserved(boolean reserved) { this.reserved = reserved; }
 }

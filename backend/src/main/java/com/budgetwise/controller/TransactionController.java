@@ -21,46 +21,73 @@ public class TransactionController {
         this.transactionService = transactionService;
     }
 
-    // CREATE
+    // -------------------
+    // ADD TRANSACTION
+    // -------------------
     @PostMapping
-    public ResponseEntity<Transaction> addTransaction(@RequestBody Transaction transaction, Authentication auth) {
-        transaction.setUserEmail(auth.getName()); // use logged-in email
-        Transaction saved = transactionService.add(transaction);
-        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+    public ResponseEntity<Transaction> addTransaction(
+            @RequestBody Transaction transaction,
+            Authentication auth) {
+
+        transaction.setUserEmail(auth.getName());
+
+        if ("reserved".equalsIgnoreCase(transaction.getType())) {
+            transaction.setReserved(true);
+        }
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(transactionService.add(transaction));
     }
 
-    // GET ALL TRANSACTIONS for logged-in user
+    // -------------------
+    // GET ALL TRANSACTIONS
+    // -------------------
     @GetMapping
     public ResponseEntity<List<Transaction>> getAllTransactions(Authentication auth) {
-        if (auth == null || !auth.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        String email = auth.getName();
-        List<Transaction> transactions = transactionService.getByUserEmail(email);
-        return ResponseEntity.ok(transactions);
+
+        return ResponseEntity.ok(
+                transactionService.getByUserEmail(auth.getName())
+        );
     }
 
-    // GET TRANSACTION BY ID
+    // -------------------
+    // GET BY ID
+    // -------------------
     @GetMapping("/{id}")
     public ResponseEntity<Transaction> getById(@PathVariable Long id) {
         Optional<Transaction> t = transactionService.getById(id);
-        return t.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        return t.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    // UPDATE
+    // -------------------
+    // UPDATE TRANSACTION
+    // -------------------
     @PutMapping("/{id}")
-    public ResponseEntity<Transaction> updateTransaction(@PathVariable Long id, @RequestBody Transaction transaction, Authentication auth) {
+    public ResponseEntity<Transaction> updateTransaction(
+            @PathVariable Long id,
+            @RequestBody Transaction transaction,
+            Authentication auth) {
+
         transaction.setId(id);
         transaction.setUserEmail(auth.getName());
+
+        if (transaction.isReserved()) {
+            transaction.setType("reserved");
+        }
+
         return transactionService.update(transaction)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // DELETE
+    // -------------------
+    // DELETE TRANSACTION
+    // -------------------
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTransaction(@PathVariable Long id) {
-        boolean deleted = transactionService.delete(id);
-        return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+        return transactionService.delete(id)
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.notFound().build();
     }
 }
