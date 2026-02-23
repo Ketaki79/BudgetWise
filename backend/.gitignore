@@ -29,9 +29,12 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
+# Ignore IDE files
 .vscode/
+.idea/
+*.iml
 
+# Ignore environment files
 .env/
 
 # Ignore Spring Boot application properties
