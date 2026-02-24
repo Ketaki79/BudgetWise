@@ -35,7 +35,7 @@ build/
 *.iml
 
 # Ignore environment files
-.env/
+.env
 
 # Ignore Spring Boot application properties
 backend/src/main/resources/application.properties
