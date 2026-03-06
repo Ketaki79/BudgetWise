@@ -337,7 +337,7 @@ const Dashboard = () => {
 {/* Monthly & Yearly Bar Charts */}
 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
   <div className="bg-white p-6 rounded-3xl shadow-xl">
-    <h3 className="text-xl font-semibold mb-4">Selected Month Overview</h3>
+    <h3 className="text-xl font-semibold mb-4">Monthly Overview</h3>
     <ResponsiveContainer width="100%" height={300}>
       <BarChart data={monthlyBarData}>
         <CartesianGrid strokeDasharray="3 3" />
