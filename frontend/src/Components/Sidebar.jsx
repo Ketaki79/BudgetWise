@@ -27,7 +27,7 @@ const Sidebar = () => {
   const handleLogout = async () => {
     try {
       await axiosInstance.post('/auth/logout');
-      navigate('/login');
+      navigate('/');
     } catch (err) {
       console.error(err);
     }

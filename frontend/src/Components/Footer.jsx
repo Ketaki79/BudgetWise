@@ -4,22 +4,24 @@ import { Github, Twitter, Linkedin, Mail } from 'lucide-react';
 
 const Footer = () => {
   return (
-    <footer className="bg-slate-900 text-slate-400 pt-20 pb-10">
+    <footer id="contact" className="bg-slate-900 text-slate-400 pt-20 pb-10">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
           
-          <div className="col-span-1 md:col-span-1">
+          {/* Brand Section */}
+          <div className="col-span-1">
             <h2 className="text-2xl font-black text-white mb-6 tracking-tighter">BudgetWise</h2>
             <p className="text-sm leading-relaxed mb-6">
               Empowering thousands of users to take control of their financial destiny through AI-driven insights and smart budgeting.
             </p>
             <div className="flex gap-4">
-              <SocialIcon icon={<Twitter size={18} />} />
-              <SocialIcon icon={<Github size={18} />} />
-              <SocialIcon icon={<Linkedin size={18} />} />
+              <SocialIcon href="#" icon={<Twitter size={18} />} label="Twitter" />
+              <SocialIcon href="#" icon={<Github size={18} />} label="GitHub" />
+              <SocialIcon href="#" icon={<Linkedin size={18} />} label="LinkedIn" />
             </div>
           </div>
 
+          {/* Links: Product */}
           <div>
             <h4 className="text-white font-bold mb-6">Product</h4>
             <ul className="space-y-4 text-sm font-medium">
@@ -29,6 +31,7 @@ const Footer = () => {
             </ul>
           </div>
 
+          {/* Links: Support */}
           <div>
             <h4 className="text-white font-bold mb-6">Support</h4>
             <ul className="space-y-4 text-sm font-medium">
@@ -38,24 +41,31 @@ const Footer = () => {
             </ul>
           </div>
 
+          {/* Newsletter */}
           <div>
             <h4 className="text-white font-bold mb-6">Stay Updated</h4>
-            <div className="relative">
+            <form className="relative" onSubmit={(e) => e.preventDefault()}>
               <input 
                 type="email" 
                 placeholder="Enter email" 
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl py-3 px-4 text-sm text-white focus:outline-hidden focus:border-indigo-500 transition-colors"
+                className="w-full bg-slate-800 border border-slate-700 rounded-xl py-3 px-4 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors"
+                aria-label="Email address for newsletter"
               />
-              <button className="absolute right-2 top-2 bg-indigo-600 text-white p-1.5 rounded-lg hover:bg-indigo-500">
+              <button 
+                type="submit"
+                className="absolute right-2 top-1.5 bg-indigo-600 text-white p-2 rounded-lg hover:bg-indigo-500 transition-colors"
+                aria-label="Subscribe"
+              >
                 <Mail size={16} />
               </button>
-            </div>
+            </form>
           </div>
 
         </div>
 
+        {/* Bottom Bar */}
         <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-bold uppercase tracking-widest">
-          <p>© 2026 BudgetWise AI. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} BudgetWise AI. All rights reserved.</p>
           <p>Made with ❤️ for financial freedom</p>
         </div>
       </div>
@@ -63,11 +73,14 @@ const Footer = () => {
   );
 };
 
-const SocialIcon = ({ icon }) => (
-  <a href="#" className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all">
+const SocialIcon = ({ icon, href, label }) => (
+  <a 
+    href={href} 
+    aria-label={label}
+    className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all"
+  >
     {icon}
   </a>
 );
 
 export default Footer;
-

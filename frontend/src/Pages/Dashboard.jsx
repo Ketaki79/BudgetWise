@@ -51,8 +51,9 @@ const Dashboard = () => {
     const fetchUserAndTransactions = async () => {
       const token = localStorage.getItem("token");
 
+      // Redirect to Home if no token is found
       if (!token) {
-        navigate("/login");
+        navigate("/");
         return;
       }
 
@@ -78,16 +79,18 @@ const Dashboard = () => {
       } catch (err) {
         console.error("Session expired:", err?.response?.data || err.message);
         localStorage.removeItem("token");
-        navigate("/login");
+        // Redirect to Home if session expires or API fails
+        navigate("/");
       }
     };
 
     fetchUserAndTransactions();
   }, [navigate, setTransactions]);
 
+  // Handle Logout to redirect to Home page
   const handleLogout = () => {
     localStorage.removeItem("token");
-    navigate("/login");
+    navigate("/");
   };
 
   if (loading) {
@@ -273,104 +276,99 @@ const Dashboard = () => {
         </div>
 
         {/* Charts */}
-<div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-  <div className="bg-white p-6 rounded-3xl shadow-xl">
-    <h3 className="text-xl font-semibold mb-4">Expenses by Category</h3>
-    <ResponsiveContainer width="100%" height={300}>
-      <PieChart>
-        <Pie data={pieCategoryData} dataKey="value" nameKey="name" outerRadius={100} label>
-          {pieCategoryData.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-          ))}
-        </Pie>
-        <Tooltip />
-        <Legend />
-      </PieChart>
-    </ResponsiveContainer>
-  </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div className="bg-white p-6 rounded-3xl shadow-xl">
+            <h3 className="text-xl font-semibold mb-4">Expenses by Category</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie data={pieCategoryData} dataKey="value" nameKey="name" outerRadius={100} label>
+                  {pieCategoryData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
 
-  <div className="bg-white p-6 rounded-3xl shadow-xl">
-    <h3 className="text-xl font-semibold mb-4">Finance Summary</h3>
-    <ResponsiveContainer width="100%" height={300}>
-      <PieChart>
-        <Pie data={pieSummaryData} dataKey="value" nameKey="name" outerRadius={100} label>
-          {/* Ensure Income → Expenses → Balance order */}
-          {['Income', 'Expenses', 'Balance'].map((key, index) => {
-            const entry = pieSummaryData.find(item => item.name === key);
-            return <Cell key={key} fill={SUMMARY_COLORS[index % SUMMARY_COLORS.length]} />;
-          })}
-        </Pie>
-        <Tooltip />
-        <Legend />
-      </PieChart>
-    </ResponsiveContainer>
-  </div>
-</div>
+          <div className="bg-white p-6 rounded-3xl shadow-xl">
+            <h3 className="text-xl font-semibold mb-4">Finance Summary</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie data={pieSummaryData} dataKey="value" nameKey="name" outerRadius={100} label>
+                  {['Income', 'Expenses', 'Balance'].map((key, index) => {
+                    return <Cell key={key} fill={SUMMARY_COLORS[index % SUMMARY_COLORS.length]} />;
+                  })}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
 
-{/* Month & Year selectors for Monthly & Yearly charts */}
-<div className="flex gap-4 mb-4">
-  <select
-    value={selectedMonth}
-    onChange={(e) => setSelectedMonth(Number(e.target.value))}
-    className="p-2 rounded-xl border bg-white"
-  >
-    {Array.from({ length: 12 }, (_, i) => (
-      <option key={i} value={i + 1}>
-        {new Date(0, i).toLocaleString('default', { month: 'long' })}
-      </option>
-    ))}
-  </select>
+        {/* Month & Year selectors */}
+        <div className="flex gap-4 mb-4">
+          <select
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(Number(e.target.value))}
+            className="p-2 rounded-xl border bg-white"
+          >
+            {Array.from({ length: 12 }, (_, i) => (
+              <option key={i} value={i + 1}>
+                {new Date(0, i).toLocaleString('default', { month: 'long' })}
+              </option>
+            ))}
+          </select>
 
-  <select
-    value={selectedYear}
-    onChange={(e) => setSelectedYear(Number(e.target.value))}
-    className="p-2 rounded-xl border bg-white"
-  >
-    {Array.from({ length: 5 }, (_, i) => (
-      <option key={i} value={new Date().getFullYear() - i}>
-        {new Date().getFullYear() - i}
-      </option>
-    ))}
-  </select>
-</div>
+          <select
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(Number(e.target.value))}
+            className="p-2 rounded-xl border bg-white"
+          >
+            {Array.from({ length: 5 }, (_, i) => (
+              <option key={i} value={new Date().getFullYear() - i}>
+                {new Date().getFullYear() - i}
+              </option>
+            ))}
+          </select>
+        </div>
 
-{/* Monthly & Yearly Bar Charts */}
-<div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-  <div className="bg-white p-6 rounded-3xl shadow-xl">
-    <h3 className="text-xl font-semibold mb-4">Monthly Overview</h3>
-    <ResponsiveContainer width="100%" height={300}>
-      <BarChart data={monthlyBarData}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" />
-        <YAxis />
-        <Tooltip />
-        <Legend />
-        {/* Order: Income → Expenses → Balance */}
-        <Bar dataKey="Income" fill="#34D399" />
-        <Bar dataKey="Expenses" fill="#F87171" />
-        <Bar dataKey="Balance" fill="#3B82F6" />
-      </BarChart>
-    </ResponsiveContainer>
-  </div>
+        {/* Monthly & Yearly Bar Charts */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div className="bg-white p-6 rounded-3xl shadow-xl">
+            <h3 className="text-xl font-semibold mb-4">Monthly Overview</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={monthlyBarData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="Income" fill="#34D399" />
+                <Bar dataKey="Expenses" fill="#F87171" />
+                <Bar dataKey="Balance" fill="#3B82F6" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
 
-  <div className="bg-white p-6 rounded-3xl shadow-xl">
-    <h3 className="text-xl font-semibold mb-4">Yearly Overview</h3>
-    <ResponsiveContainer width="100%" height={300}>
-      <BarChart data={yearlyData}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="month" />
-        <YAxis />
-        <Tooltip />
-        <Legend />
-        {/* Order: Income → Expenses → Balance */}
-        <Bar dataKey="Income" fill="#34D399" />
-        <Bar dataKey="Expenses" fill="#F87171" />
-        <Bar dataKey="Balance" fill="#3B82F6" />
-      </BarChart>
-    </ResponsiveContainer>
-  </div>
-</div>
-
+          <div className="bg-white p-6 rounded-3xl shadow-xl">
+            <h3 className="text-xl font-semibold mb-4">Yearly Overview</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={yearlyData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="Income" fill="#34D399" />
+                <Bar dataKey="Expenses" fill="#F87171" />
+                <Bar dataKey="Balance" fill="#3B82F6" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
 
         {/* Transactions Table */}
         <div className="bg-white p-6 rounded-3xl shadow-xl overflow-x-auto">

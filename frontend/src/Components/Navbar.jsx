@@ -1,105 +1,92 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Menu, X, ArrowRight } from 'lucide-react';
 import logo from '../assets/budget.png';
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [activeBtn, setActiveBtn] = useState(''); // track clicked button
   const navigate = useNavigate();
 
-  const handleNavClick = (btn) => {
-    setActiveBtn(btn);
-    navigate(btn === 'login' ? '/login' : '/register');
-  };
+  const navLinkStyle = "text-lg font-semibold text-slate-700 hover:text-indigo-600 transition-colors duration-200";
 
   return (
     <header className="fixed w-full z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center h-20">
 
-        {/* LOGO */}
+        {/* LOGO - BudgetWise Name is now bigger (text-3xl) */}
         <div
-          className="flex items-center gap-3 cursor-pointer"
+          className="flex items-center gap-3 cursor-pointer group"
           onClick={() => navigate('/')}
         >
-          <div className="w-14 h-14 flex items-center justify-center
+          <div className="w-12 h-12 flex items-center justify-center
                           bg-white rounded-xl border-2 border-indigo-600
-                          shadow-md hover:scale-105 transition">
-            <img src={logo} alt="BudgetWise" className="w-9 h-9 object-contain" />
+                          shadow-md transition-all">
+            <img src={logo} alt="BudgetWise" className="w-8 h-8 object-contain" />
           </div>
-          <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <span className="text-3xl font-black text-slate-900 tracking-tighter">
             Budget<span className="text-indigo-600">Wise</span>
           </span>
         </div>
 
         {/* DESKTOP LINKS */}
-        <nav className="hidden md:flex items-center gap-10 text-slate-800 tracking-wide">
-          <Link to="/" className="hover:text-indigo-600 transition font-normal text-lg">Home</Link>
-          <a href="#features" className="hover:text-indigo-600 transition font-normal text-lg">Features</a>
-          <a href="#about" className="hover:text-indigo-600 transition font-normal text-lg">About</a>
-          <Link to="/contact" className="hover:text-indigo-600 transition font-normal text-lg">Contact</Link>
+        <nav className="hidden lg:flex items-center gap-10">
+          <a href="#home" className={navLinkStyle}>Home</a>
+          <a href="#about" className={navLinkStyle}>About</a>
+          <a href="#features" className={navLinkStyle}>Features</a>
+          <a href="#contact" className={navLinkStyle}>Contact</a>
         </nav>
 
-        {/* DESKTOP LOGIN / REGISTER */}
-        <div className="hidden md:flex items-center gap-3">
-          {['login', 'register'].map((btn) => (
-            <button
-              key={btn}
-              onClick={() => handleNavClick(btn)}
-              className={`px-6 py-2 rounded-xl font-bold text-sm sm:text-base transition
-                ${activeBtn === btn
-                  ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-                  : btn === 'login'
-                    ? 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-                    : 'bg-indigo-600 text-white hover:bg-indigo-700'
-                }
-              `}
-            >
-              {btn === 'login' ? 'Login' : 'Register'}
-            </button>
-          ))}
+        {/* SEPARATE ACTION BUTTONS - Login is now bigger with a box */}
+        <div className="hidden md:flex items-center gap-5">
+          <button
+            onClick={() => navigate('/login')}
+            className="px-8 py-2.5 text-base font-bold text-slate-700 border-2 border-slate-200 rounded-xl hover:border-indigo-600 hover:text-indigo-600 transition-all"
+          >
+            Login
+          </button>
+          
+          <button
+            onClick={() => navigate('/register')}
+            className="flex items-center gap-2 px-8 py-3 bg-indigo-600 text-white text-base font-bold rounded-xl 
+                       hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all active:scale-95"
+          >
+            Get Started
+            <ArrowRight size={18} />
+          </button>
         </div>
 
         {/* MOBILE MENU BUTTON */}
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="md:hidden text-slate-900"
+          className="md:hidden p-2 text-slate-900 hover:bg-slate-50 rounded-lg transition"
         >
-          {mobileOpen ? <X size={28} /> : <Menu size={28} />}
+          {mobileOpen ? <X size={32} /> : <Menu size={32} />}
         </button>
       </div>
 
       {/* MOBILE MENU */}
       {mobileOpen && (
-        <div className="md:hidden bg-white border-t border-slate-200 shadow-lg animate-slideDown">
-          <div className="px-6 py-6 flex flex-col gap-4">
+        <div className="md:hidden bg-white border-t border-slate-200 shadow-xl animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="px-6 py-8 flex flex-col gap-6">
+            <a href="#home" onClick={() => setMobileOpen(false)} className="text-xl font-bold text-slate-800 hover:text-indigo-600 transition-colors">Home</a>
+            <a href="#about" onClick={() => setMobileOpen(false)} className="text-xl font-bold text-slate-800 hover:text-indigo-600 transition-colors">About</a>
+            <a href="#features" onClick={() => setMobileOpen(false)} className="text-xl font-bold text-slate-800 hover:text-indigo-600 transition-colors">Features</a>
+            <a href="#contact" onClick={() => setMobileOpen(false)} className="text-xl font-bold text-slate-800 hover:text-indigo-600 transition-colors">Contact</a>
 
-            {/* Mobile Links */}
-            <Link to="/" onClick={() => setMobileOpen(false)} className="text-slate-800 font-normal hover:text-indigo-600 transition">Home</Link>
-            <a href="#features" onClick={() => setMobileOpen(false)} className="text-slate-800 font-normal hover:text-indigo-600 transition">Features</a>
-            <a href="#about" onClick={() => setMobileOpen(false)} className="text-slate-800 font-normal hover:text-indigo-600 transition">About</a>
-            <Link to="/contact" onClick={() => setMobileOpen(false)} className="text-slate-800 font-normal hover:text-indigo-600 transition">Contact</Link>
-
-            {/* Mobile Login / Register */}
-            <div className="flex flex-col gap-3 mt-3">
-              {['login', 'register'].map((btn) => (
-                <button
-                  key={btn}
-                  onClick={() => { setMobileOpen(false); handleNavClick(btn); }}
-                  className={`px-6 py-2 rounded-xl font-bold text-sm transition
-                    ${activeBtn === btn
-                      ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-                      : btn === 'login'
-                        ? 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-                        : 'bg-indigo-600 text-white hover:bg-indigo-700'
-                    }
-                  `}
-                >
-                  {btn === 'login' ? 'Login' : 'Register'}
-                </button>
-              ))}
+            <div className="flex flex-col gap-4 pt-4 border-t border-slate-100">
+              <button 
+                onClick={() => { navigate('/login'); setMobileOpen(false); }}
+                className="w-full py-4 font-bold text-slate-700 border-2 border-slate-200 rounded-xl"
+              >
+                Login
+              </button>
+              <button 
+                onClick={() => { navigate('/register'); setMobileOpen(false); }}
+                className="w-full py-4 bg-indigo-600 text-white font-bold rounded-xl"
+              >
+                Get Started
+              </button>
             </div>
-
           </div>
         </div>
       )}

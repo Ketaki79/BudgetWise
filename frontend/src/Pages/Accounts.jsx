@@ -1,10 +1,51 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from '../Components/Sidebar';
 import { CreditCard, Wallet } from 'lucide-react';
+import { useTransactions } from "../Context/TransactionsContext";
 
 const Accounts = () => {
-  // Dummy main balance
-  const [mainBalance, setMainBalance] = useState(100000);
+  const navigate = useNavigate();
+  const { transactions } = useTransactions();
+  const today = new Date().toISOString().split("T")[0];
+
+  // --- AUTH PROTECTION ---
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/");
+    }
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/");
+  };
+
+  // --- DYNAMIC BALANCE CALCULATION (Same as Dashboard) ---
+  const normalIncome = transactions.filter(
+    (t) => t.type === "income" && !t.reserved
+  );
+
+  const maturedReserved = transactions.filter(
+    (t) => t.type === "income" && t.reserved && t.date <= today
+  );
+
+  const normalExpense = transactions.filter(
+    (t) => t.type === "expense"
+  );
+
+  const totalIncome = normalIncome.reduce(
+    (sum, t) => sum + Number(t.amount || 0),
+    0
+  );
+
+  const totalExpenses =
+    normalExpense.reduce((sum, t) => sum + Number(t.amount || 0), 0) +
+    maturedReserved.reduce((sum, t) => sum + Number(t.amount || 0), 0);
+
+  // This is your actual Dashboard Balance
+  const dashboardBalance = Math.max(totalIncome - totalExpenses, 0);
 
   // Dummy bank accounts
   const bankAccounts = [
@@ -17,18 +58,19 @@ const Accounts = () => {
 
   return (
     <div className="flex bg-gray-50 min-h-screen">
-      <Sidebar />
+      {/* Pass handleLogout to Sidebar if needed */}
+      <Sidebar onLogout={handleLogout} />
 
       <main className="flex-1 md:ml-64 p-6">
         <h1 className="text-3xl font-semibold mb-8 text-slate-900">My Accounts</h1>
 
-        {/* Main Account */}
+        {/* Main Account - Now using Dashboard Balance */}
         <div className="bg-linear-to-br from-indigo-600 to-purple-600 text-white rounded-3xl p-8 shadow-xl mb-10">
           <div className="flex items-center gap-3 text-lg font-medium opacity-90">
             <Wallet size={28} /> My Main Account
           </div>
-          <p className="mt-6 text-sm opacity-80">Total Balance (Dashboard)</p>
-          <p className="text-4xl font-bold mt-1">₹{mainBalance.toLocaleString()}</p>
+          <p className="mt-6 text-sm opacity-80">Current Dashboard Balance</p>
+          <p className="text-4xl font-bold mt-1">₹{dashboardBalance.toLocaleString()}</p>
         </div>
 
         {/* Linked Bank Accounts */}
