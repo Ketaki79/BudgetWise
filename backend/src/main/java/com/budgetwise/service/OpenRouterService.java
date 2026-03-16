@@ -16,20 +16,23 @@ public class OpenRouterService {
     private String apiKey;
 
     @Value("${openrouter.api.url}")
-    private String apiUrl; // e.g., https://openrouter.ai/api/v1/chat/completions
+    private String apiUrl;
 
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private final int FREE_PLAN_MAX_TOKENS = 285; // free plan token limit
+    // Safe token limit for free plan
+    private final int MAX_TOKENS = 350;
 
     public String askOpenRouter(String prompt) {
+
         try {
+
             String safeApiKey = Objects.requireNonNull(apiKey, "OpenRouter API key must not be null");
             String safePrompt = Objects.requireNonNull(prompt, "Prompt must not be null");
 
-            // Truncate prompt if too long
-            if (safePrompt.length() > 2000) { 
+            // Limit prompt size
+            if (safePrompt.length() > 2000) {
                 safePrompt = safePrompt.substring(safePrompt.length() - 2000);
             }
 
@@ -37,38 +40,67 @@ public class OpenRouterService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.setBearerAuth(safeApiKey);
 
+            String systemPrompt = """
+You are a helpful AI Financial Advisor for a budgeting app called BudgetWise.
+
+Rules:
+- Respond in clean plain text.
+- Do NOT use markdown symbols like ** or ##.
+- Keep answers short and clear.
+- Always end with a complete sentence.
+- Maximum 180 words.
+""";
+
             String requestBody = """
             {
-              "model": "openai/gpt-4",
+              "model": "openai/gpt-4o-mini",
               "messages": [
-                {"role": "system", "content": "You are a concise, friendly financial assistant."},
+                {"role": "system", "content": "%s"},
                 {"role": "user", "content": "%s"}
               ],
-              "temperature": 0.7,
+              "temperature": 0.6,
               "max_tokens": %d
             }
-            """.formatted(safePrompt.replace("\"", "\\\""), FREE_PLAN_MAX_TOKENS);
+            """.formatted(
+                    systemPrompt.replace("\"", "\\\""),
+                    safePrompt.replace("\"", "\\\""),
+                    MAX_TOKENS
+            );
 
             HttpEntity<String> request = new HttpEntity<>(requestBody, headers);
 
             ResponseEntity<String> response = restTemplate.postForEntity(
-                    Objects.requireNonNull(apiUrl, "OpenRouter API URL must not be null"),
+                    Objects.requireNonNull(apiUrl),
                     request,
                     String.class
             );
 
-            JsonNode root = objectMapper.readTree(response.getBody());
+            String responseBody = Objects.requireNonNull(response.getBody());
 
-            return root.path("choices")
+            JsonNode root = objectMapper.readTree(responseBody);
+
+            String aiResponse = root.path("choices")
                     .get(0)
                     .path("message")
                     .path("content")
                     .asText();
 
+            // Clean markdown symbols
+            aiResponse = aiResponse
+                    .replace("**", "")
+                    .replace("##", "");
+
+            // Ensure sentence completion
+            if (!aiResponse.trim().endsWith(".")) {
+                aiResponse = aiResponse.trim() + ".";
+            }
+
+            return aiResponse;
+
         } catch (Exception e) {
             e.printStackTrace();
-            // Fallback if free plan exceeded or error occurs
-            return "AI could not generate a full response due to free plan limits. Try asking shorter questions or upgrade your plan.";
+
+            return "Sorry, the AI advisor could not generate a response right now. Please try again later.";
         }
     }
 }

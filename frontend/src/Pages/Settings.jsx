@@ -21,6 +21,8 @@ const Settings = () => {
   const validatePassword = (password) =>
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/.test(password);
 
+  const token = localStorage.getItem('token'); // JWT token
+
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -33,20 +35,25 @@ const Settings = () => {
     if (!profilePhoto) return setError("Please select a photo first");
 
     setLoading(true);
+    setMessage('');
+    setError('');
+
     const formData = new FormData();
     formData.append('photo', profilePhoto);
 
     try {
       await axios.post('/api/users/upload-photo', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`, // send JWT
+        },
       });
       setMessage("Profile photo updated!");
       setPhotoPreview(null);
       setProfilePhoto(null);
-      setError('');
     } catch (err) {
       console.error(err);
-      setError("Failed to upload photo");
+      setError(err.response?.data?.message || "Failed to upload photo");
     } finally {
       setLoading(false);
     }
@@ -69,15 +76,19 @@ const Settings = () => {
 
     setLoading(true);
     try {
-      const res = await axios.post('/api/users/change-password', {
-        currentPassword,
-        newPassword,
-      });
-      setMessage(res.data.message);
+      const res = await axios.post(
+        '/api/users/change-password',
+        { currentPassword, newPassword },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`, // send JWT
+          },
+        }
+      );
+      setMessage(res.data.message || "Password updated successfully");
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
-      setError('');
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || "Error updating password");
@@ -124,7 +135,6 @@ const Settings = () => {
                 />
               ) : (
                 <div className="w-32 h-32 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-500 text-5xl font-bold border-4 border-indigo-200">
-                  {/** Initials or icon */}
                   <Camera />
                 </div>
               )}
