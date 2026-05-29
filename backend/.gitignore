@@ -38,6 +38,3 @@ build/
 .env
 backend/.env
 .env.local
-
-# Ignore Spring Boot application properties
-backend/src/main/resources/application.properties
